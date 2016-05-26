@@ -1,14 +1,14 @@
 @import "compass/css3/box-sizing";
 
 @mixin clearfix() {
-	
+
 	&:before, &:after {
-	    content: "\0020"; 
-	    display: block; 
-	    height: 0; 
+	    content: "\0020";
+	    display: block;
+	    height: 0;
 	    overflow: hidden;
 	}
-	
+
 	&:after {
 		clear: both;
 	}
@@ -45,6 +45,43 @@ header, #main, footer {
 	width: 100%;
 }
 
+fieldset + fieldset {
+	margin-top: 2rem;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+	height: 3rem;
+	padding: .5rem;
+	font-size: 11pt;
+	display: block;
+	width: 100%;
+	border: solid thin gray;
+	border-radius: .1em;
+}
+
+select {
+	width: 100%;
+	height: 3rem;
+	display: block;
+	padding: 0 1em;
+}
+
+fieldset {
+	> legend {
+		font-weight: bold;
+	}
+
+	> label:first-of-type {
+		margin-top: 0;
+	}
+}
+
+label {
+	margin-top: .5rem;
+}
+
 @media screen and (max-width: 480px) {
 	[class*='col-'] {
 		margin-bottom: $pad;
@@ -54,10 +91,10 @@ header, #main, footer {
 @mixin grid-base($pad: 1em) {
 	.grid {
 		margin-bottom: $pad;
-		
+
 	  @include clearfix();
 	}
-	
+
 	@media screen and (min-width: 480px)
 	{
 		[class*='col-'] {
@@ -66,11 +103,11 @@ header, #main, footer {
 		  	padding-right: 0;
 		  }
 		}
-		
+
 		.grid-inset {
 			margin-right: -$pad;
 			display: block;
-			
+
 			[class*='col-'] {
 			  padding-right: $pad;
 			  &:last-of-type {
@@ -79,11 +116,11 @@ header, #main, footer {
 			}
 		}
 	}
-	
+
 	/* Opt-in outside padding */
 	.grid-pad {
 	  padding: $pad 0 $pad $pad;
-	  
+
 	  [class*='col-']:last-of-type {
 	    padding-right: $pad;
 	  }
@@ -91,14 +128,14 @@ header, #main, footer {
 }
 
 @mixin container-width($media-full: 1180px, $media-screen: 920px, $media-tablet: 720px, $media-mobile: 360px) {
-	
+
 	@media screen and (min-width: $media-mobile)  {
 		.mobile-half {
 			width: 50%;
 			float: left;
 		}
 	}
-	
+
 	@media screen and (min-width: $media-tablet)  {
 		.mobile-half {
 			width: auto;
@@ -106,56 +143,56 @@ header, #main, footer {
 		}
 		.col-1-2 {
 			width: percentage(1/2);
-			
+
 		}
-		
+
 		.col-1-3 {
 			width: percentage(1/3);
 		}
-		
+
 		.col-2-3 {
 			width: percentage(2/3);
 		}
-		
+
 		.col-1-4 {
 			width: percentage(1/4);
 		}
-		
+
 		.col-3-4 {
 			width: percentage(3/4);
 		}
-		
+
 		.col-1-6 {
 			width: percentage(1/6);
 		}
-		
+
 		.col-5-6 {
 			width: percentage(5/6);
 		}
-		
+
 		.col-1-8 {
 			width: percentage(1/8);
 		}
-		
+
 		.col-3-8 {
 			width: percentage(3/8);
 		}
-		
+
 		.col-5-8 {
 			width: percentage(5/8);
 		}
-		
+
 		.col-7-8 {
 			width: percentage(7/8);
 		}
-	}	
-	
+	}
+
 	@media screen and (min-width: $media-screen)  {
 		.container {
 			max-width: $media-screen;
 		}
 	}
-	
+
 	@media screen and (min-width: $media-full)  {
 		.container {
 			max-width: $media-full;
@@ -179,5 +216,3 @@ header, #main, footer {
 //  @if $active {
 //    &:active {
 //      color: $active; } } }
-
- 

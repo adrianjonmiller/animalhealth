@@ -5,6 +5,29 @@
  * @since 1.2
  */
 class VisualFormBuilder_Entries_List extends WP_List_Table {
+	/**
+	 * field_table_name
+	 *
+	 * @var mixed
+	 * @access public
+	 */
+	public $field_table_name;
+
+	/**
+	 * form_table_name
+	 *
+	 * @var mixed
+	 * @access public
+	 */
+	public $form_table_name;
+
+	/**
+	 * entries_table_name
+	 *
+	 * @var mixed
+	 * @access public
+	 */
+	public $entries_table_name;
 
 	function __construct(){
 		global $status, $page, $wpdb;
@@ -56,13 +79,13 @@ class VisualFormBuilder_Entries_List extends WP_List_Table {
 
 		// Build row actions
 		if ( !$this->get_entry_status() || 'all' == $this->get_entry_status() )
-			$actions['view'] = sprintf( '<a href="?page=%s&action=%s&entry=%s" id="%3$s" class="view-entry">View</a>', $_REQUEST['page'], 'view', $item['entry_id'] );
+			$actions['view'] = sprintf( '<a href="?page=%s&action=%s&entry=%s" id="%3$s" class="view-entry">View</a>', $_GET['page'], 'view', $item['entry_id'] );
 
 		if ( !$this->get_entry_status() || 'all' == $this->get_entry_status() )
-			$actions['trash'] = sprintf( '<a href="?page=%s&action=%s&entry=%s">Trash</a>', $_REQUEST['page'], 'trash', $item['entry_id'] );
+			$actions['trash'] = sprintf( '<a href="?page=%s&action=%s&entry=%s">Trash</a>', $_GET['page'], 'trash', $item['entry_id'] );
 		elseif ( $this->get_entry_status() && 'trash' == $this->get_entry_status() ) {
-			$actions['restore'] = sprintf( '<a href="?page=%s&action=%s&entry=%s">%s</a>', $_REQUEST['page'], 'restore', $item['entry_id'], __( 'Restore', 'visual-form-builder' ) );
-			$actions['delete'] = sprintf( '<a href="?page=%s&action=%s&entry=%s">%s</a>', $_REQUEST['page'], 'delete', $item['entry_id'], __( 'Delete Permanently', 'visual-form-builder' ) );
+			$actions['restore'] = sprintf( '<a href="?page=%s&action=%s&entry=%s">%s</a>', $_GET['page'], 'restore', $item['entry_id'], __( 'Restore', 'visual-form-builder' ) );
+			$actions['delete'] = sprintf( '<a href="?page=%s&action=%s&entry=%s">%s</a>', $_GET['page'], 'delete', $item['entry_id'], __( 'Delete Permanently', 'visual-form-builder' ) );
 		}
 
 		return sprintf( '%1$s %2$s', $item['form'], $this->row_actions( $actions ) );
@@ -135,21 +158,21 @@ class VisualFormBuilder_Entries_List extends WP_List_Table {
 
 		// If the form filter dropdown is used
 		if ( $this->current_filter_action() )
-			$where .= 'AND forms.form_id = ' . $this->current_filter_action();
+			$where .= $wpdb->prepare( 'AND forms.form_id = %d', $this->current_filter_action() );
 
 		// Get the month and year from the dropdown
-		$m = isset( $_REQUEST['m'] ) ? (int) $_REQUEST['m'] : 0;
+		$m = isset( $_POST['m'] ) ? (int) $_POST['m'] : 0;
 
 		// If a month/year has been selected, parse out the month/year and build the clause
 		if ( $m > 0 ) {
 			$year 	= substr( $m, 0, 4 );
 			$month 	= substr( $m, -2 );
 
-			$where .= " AND YEAR(date_submitted) = $year AND MONTH(date_submitted) = $month";
+			$where .= $wpdb->prepare( " AND YEAR(date_submitted) = %d AND MONTH(date_submitted) = %d", $year, $month );
 		}
 
 		// Get the month/year from the dropdown
-		$today = isset( $_REQUEST['today'] ) ? (int) $_REQUEST['today'] : 0;
+		$today = isset( $_GET['today'] ) ? (int) $_GET['today'] : 0;
 
 		// Parse month/year and build the clause
 		if ( $today > 0 )
@@ -175,10 +198,10 @@ class VisualFormBuilder_Entries_List extends WP_List_Table {
 	 * @returns string Entry status
 	 */
 	function get_entry_status() {
-		if ( !isset( $_REQUEST['entry_status'] ) )
+		if ( !isset( $_GET['entry_status'] ) )
 			return false;
 
-		return esc_html( $_REQUEST['entry_status'] );
+		return esc_html( $_GET['entry_status'] );
 	}
 
 	/**
@@ -199,7 +222,7 @@ class VisualFormBuilder_Entries_List extends WP_List_Table {
 		);
 
 		$total_entries = (int) $num_entries->all;
-		$entry_status = isset( $_REQUEST['entry_status'] ) ? $_REQUEST['entry_status'] : 'all';
+		$entry_status = isset( $_GET['entry_status'] ) ? $_GET['entry_status'] : 'all';
 
 		foreach ( $stati as $status => $label ) {
 			$class = ( $status == $entry_status ) ? ' class="current"' : '';
@@ -300,11 +323,11 @@ class VisualFormBuilder_Entries_List extends WP_List_Table {
 		$entry_id = '';
 
 		// Set the Entry ID array
-		if ( isset( $_REQUEST['entry'] ) ) :
-			if ( is_array( $_REQUEST['entry'] ) )
-				$entry_id = $_REQUEST['entry'];
+		if ( isset( $_POST['entry'] ) ) :
+			if ( is_array( $_POST['entry'] ) )
+				$entry_id = $_POST['entry'];
 			else
-				$entry_id = (array) $_REQUEST['entry'];
+				$entry_id = (array) $_POST['entry'];
 		endif;
 
 		switch( $this->current_action() ) :
@@ -330,7 +353,7 @@ class VisualFormBuilder_Entries_List extends WP_List_Table {
 			break;
 
 			case 'delete' :
-				$entry_id = ( isset( $_REQUEST['entry'] ) && is_array( $_REQUEST['entry'] ) ) ? $_REQUEST['entry'] : array( $_REQUEST['entry'] );
+				$entry_id = ( isset( $_POST['entry'] ) && is_array( $_POST['entry'] ) ) ? $_POST['entry'] : array( $_POST['entry'] );
 
 				global $wpdb;
 
@@ -392,7 +415,7 @@ class VisualFormBuilder_Entries_List extends WP_List_Table {
 		if ( !$month_count || ( 1 == $month_count && 0 == $months[0]->month ) )
 			return;
 
-		$m = isset( $_REQUEST['m'] ) ? (int) $_REQUEST['m'] : 0;
+		$m = isset( $_POST['m'] ) ? (int) $_POST['m'] : 0;
 ?>
 		<select name='m'>
 			<option<?php selected( $m, 0 ); ?> value='0'><?php _e( 'Show all dates' ); ?></option>
@@ -422,8 +445,8 @@ class VisualFormBuilder_Entries_List extends WP_List_Table {
 	 * @returns int Form ID
 	 */
 	function current_filter_action() {
-		if ( isset( $_REQUEST['form-filter'] ) && -1 != $_REQUEST['form-filter'] )
-			return $_REQUEST['form-filter'];
+		if ( isset( $_POST['form-filter'] ) && -1 != $_POST['form-filter'] )
+			return absint( $_POST['form-filter'] );
 
 		return false;
 	}
@@ -483,12 +506,12 @@ class VisualFormBuilder_Entries_List extends WP_List_Table {
 		$this->_column_headers = array($columns, $hidden, $sortable);
 
 		// Get entries search terms
-		$search_terms = ( !empty( $_REQUEST['s'] ) ) ? explode( ' ', $_REQUEST['s'] ) : array();
+		$search_terms = ( !empty( $_POST['s'] ) ) ? explode( ' ', $_POST['s'] ) : array();
 
 		$searchand = $search = '';
 		// Loop through search terms and build query
 		foreach( $search_terms as $term ) {
-			$term = esc_sql( like_escape( $term ) );
+			$term = esc_sql( $wpdb->esc_like( $term ) );
 
 			$search .= "{$searchand}((entries.subject LIKE '%{$term}%') OR (entries.sender_name LIKE '%{$term}%') OR (entries.sender_email LIKE '%{$term}%') OR (entries.emails_to LIKE '%{$term}%') OR (entries.data LIKE '%{$term}%'))";
 			$searchand = ' AND ';
@@ -497,8 +520,8 @@ class VisualFormBuilder_Entries_List extends WP_List_Table {
 		$search = ( !empty($search) ) ? " AND ({$search}) " : '';
 
 		// Set our ORDER BY and ASC/DESC to sort the entries
-		$orderby = ( !empty( $_REQUEST['orderby'] ) ) ? $_REQUEST['orderby'] : 'date';
-		$order = ( !empty( $_REQUEST['order'] ) ) ? $_REQUEST['order'] : 'desc';
+		$orderby = ( !empty( $_GET['orderby'] ) ) ? $_GET['orderby'] : 'date';
+		$order = ( !empty( $_GET['order'] ) ) ? $_GET['order'] : 'desc';
 
 		// Get the sorted entries
 		$entries = $this->get_entries( $orderby, $order, $per_page, $offset, $search );
@@ -528,7 +551,7 @@ class VisualFormBuilder_Entries_List extends WP_List_Table {
 			$where .= 'AND form_id = ' . $this->current_filter_action();
 
 		// Get the month/year from the dropdown
-		$m = isset( $_REQUEST['m'] ) ? (int) $_REQUEST['m'] : 0;
+		$m = isset( $_POST['m'] ) ? (int) $_POST['m'] : 0;
 
 		// Parse month/year and build the clause
 		if ( $m > 0 ) {
@@ -539,7 +562,7 @@ class VisualFormBuilder_Entries_List extends WP_List_Table {
 		}
 
 		// Get the month/year from the dropdown
-		$today = isset( $_REQUEST['today'] ) ? (int) $_REQUEST['today'] : 0;
+		$today = isset( $_GET['today'] ) ? (int) $_GET['today'] : 0;
 
 		// Parse month/year and build the clause
 		if ( $today > 0 )
@@ -590,7 +613,7 @@ class VisualFormBuilder_Entries_List extends WP_List_Table {
 		$page_links = array();
 
 		// Added to pick up the months dropdown
-		$m = isset( $_REQUEST['m'] ) ? (int) $_REQUEST['m'] : 0;
+		$m = isset( $_POST['m'] ) ? (int) $_POST['m'] : 0;
 
 		$disable_first = $disable_last = '';
 		if ( $current == 1 )

@@ -5,7 +5,36 @@
  * @since 1.2
  */
 class VisualFormBuilder_Forms_List extends WP_List_Table {
+	/**
+	 * field_table_name
+	 *
+	 * @var mixed
+	 * @access public
+	 */
+	public $field_table_name;
 
+	/**
+	 * form_table_name
+	 *
+	 * @var mixed
+	 * @access public
+	 */
+	public $form_table_name;
+
+	/**
+	 * entries_table_name
+	 *
+	 * @var mixed
+	 * @access public
+	 */
+	public $entries_table_name;
+
+	/**
+	 * errors
+	 *
+	 * @var mixed
+	 * @access public
+	 */
 	public $errors;
 
 	function __construct(){
@@ -51,8 +80,8 @@ class VisualFormBuilder_Forms_List extends WP_List_Table {
 		$actions = array();
 
 		// Edit Form
-		$form_title = sprintf( '<strong><a href="?page=%s&form=%s" id="%3$s" class="view-form">%s</a></strong>', $_REQUEST['page'], $item['form_id'], $item['form_title'] );
-		$actions['edit'] = sprintf( '<a href="?page=%s&action=%s&form=%s" id="%3$s" class="view-form">%s</a>', $_REQUEST['page'], 'edit', $item['form_id'], __( 'Edit', 'visual-form-builder' ) );
+		$form_title = sprintf( '<strong><a href="?page=%s&form=%s" id="%3$s" class="view-form">%s</a></strong>', $_GET['page'], $item['form_id'], $item['form_title'] );
+		$actions['edit'] = sprintf( '<a href="?page=%s&action=%s&form=%s" id="%3$s" class="view-form">%s</a>', $_GET['page'], 'edit', $item['form_id'], __( 'Edit', 'visual-form-builder' ) );
 
 		// Duplicate Form
 		$actions['copy'] = sprintf( '<a href="%s&action=%s&form=%s" id="%3$s" class="view-form">%s</a>', wp_nonce_url( admin_url( 'admin.php?page=visual-form-builder' ), 'copy-form-' . $item['form_id'] ), 'copy_form', $item['form_id'], __( 'Duplicate', 'visual-form-builder' ) );
@@ -158,7 +187,7 @@ class VisualFormBuilder_Forms_List extends WP_List_Table {
 		);
 
 		$total_entries = (int) $num_forms->all;
-		$entry_status = isset( $_REQUEST['form_status'] ) ? $_REQUEST['form_status'] : 'all';
+		$entry_status = isset( $_GET['form_status'] ) ? $_GET['form_status'] : 'all';
 
 		foreach ( $stati as $status => $label ) {
 			$class = ( $status == $entry_status ) ? ' class="current"' : '';
@@ -286,11 +315,11 @@ class VisualFormBuilder_Forms_List extends WP_List_Table {
 		$form_id = '';
 
 		// Set the Entry ID array
-		if ( isset( $_REQUEST['form'] ) ) {
-			if ( is_array( $_REQUEST['form'] ) )
-				$form_id = $_REQUEST['form'];
+		if ( isset( $_POST['form'] ) ) {
+			if ( is_array( $_POST['form'] ) )
+				$form_id = $_POST['form'];
 			else
-				$form_id = (array) $_REQUEST['form'];
+				$form_id = (array) $_POST['form'];
 		}
 
 		switch( $this->current_action() ) {
@@ -320,8 +349,8 @@ class VisualFormBuilder_Forms_List extends WP_List_Table {
 	 * @returns int Form ID
 	 */
 	function current_filter_action() {
-		if ( isset( $_REQUEST['form-filter'] ) && -1 != $_REQUEST['form-filter'] )
-			return $_REQUEST['form-filter'];
+		if ( isset( $_POST['form-filter'] ) && -1 != $_POST['form-filter'] )
+			return absint( $_POST['form-filter'] );
 
 		return false;
 	}
@@ -381,12 +410,12 @@ class VisualFormBuilder_Forms_List extends WP_List_Table {
 		$this->_column_headers = array($columns, $hidden, $sortable);
 
 		// Get entries search terms
-		$search_terms = ( !empty( $_REQUEST['s'] ) ) ? explode( ' ', $_REQUEST['s'] ) : array();
+		$search_terms = ( !empty( $_POST['s'] ) ) ? explode( ' ', $_POST['s'] ) : array();
 
 		$searchand = $search = '';
 		// Loop through search terms and build query
 		foreach( $search_terms as $term ) {
-			$term = esc_sql( like_escape( $term ) );
+			$term = esc_sql( $wpdb->esc_like( $term ) );
 
 			$search .= "{$searchand}((forms.form_title LIKE '%{$term}%') OR (forms.form_key LIKE '%{$term}%') OR (forms.form_email_subject LIKE '%{$term}%'))";
 			$searchand = ' AND ';
@@ -395,8 +424,8 @@ class VisualFormBuilder_Forms_List extends WP_List_Table {
 		$search = ( !empty($search) ) ? " AND ({$search}) " : '';
 
 		// Set our ORDER BY and ASC/DESC to sort the entries
-		$orderby  = ( !empty( $_REQUEST['orderby'] ) ) ? $_REQUEST['orderby'] : 'form_id';
-		$order    = ( !empty( $_REQUEST['order'] ) ) ? $_REQUEST['order'] : 'desc';
+		$orderby  = ( !empty( $_GET['orderby'] ) ) ? $_GET['orderby'] : 'form_id';
+		$order    = ( !empty( $_GET['order'] ) ) ? $_GET['order'] : 'desc';
 
 		// Get the sorted entries
 		$forms = $this->get_forms( $orderby, $order, $per_page, $offset, $search );
@@ -468,7 +497,7 @@ class VisualFormBuilder_Forms_List extends WP_List_Table {
 		$page_links = array();
 
 		// Added to pick up the months dropdown
-		$m = isset( $_REQUEST['m'] ) ? (int) $_REQUEST['m'] : 0;
+		$m = isset( $_POST['m'] ) ? (int) $_POST['m'] : 0;
 
 		$disable_first = $disable_last = '';
 		if ( $current == 1 )

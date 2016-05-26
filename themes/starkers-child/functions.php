@@ -10,16 +10,16 @@ function starkers_script_enqueuer() {
 
         wp_register_script( 'application', get_stylesheet_directory_uri().'/js/application.js', array( 'jquery' ),'', true );
         wp_enqueue_script( 'application' );
-		
+
 		wp_register_script( 'modernizr', get_stylesheet_directory_uri().'/js/modernizr.custom.45125.js', array( 'jquery' ),'' , false );
 		wp_enqueue_script( 'modernizr' );
-		 		
+
 		wp_register_style( 'fonts', get_stylesheet_directory_uri().'/css/fonts/stylesheet.css', '', '', 'screen' );
 		wp_enqueue_style( 'fonts' );
 
 		wp_register_style( 'screen', get_stylesheet_directory_uri().'/css/screen.css', '', '', 'screen' );
         wp_enqueue_style( 'screen' );
-        
+
         wp_register_style( 'style', get_stylesheet_directory_uri().'/style.css', '', '', 'screen' );
         wp_enqueue_style( 'style' );
 
@@ -27,9 +27,9 @@ function starkers_script_enqueuer() {
         wp_enqueue_script( 'maxImageWidth' );
 
         wp_register_script( 'flexslider', get_stylesheet_directory_uri().'/bower_components/flexslider/jquery.flexslider-min.js', array( 'jquery' ),'' , true );
-        wp_enqueue_script( 'flexslider' );        
+        wp_enqueue_script( 'flexslider' );
 
-        wp_register_script( 'behaviors', get_stylesheet_directory_uri().'/js/behaviors/behaviors.min.js', array( 'jquery' ),'' , true );
+        wp_register_script( 'behaviors', get_stylesheet_directory_uri().'/js/behaviors/behaviors.js', array( 'jquery' ),'' , true );
         wp_enqueue_script( 'behaviors' );
 }
 
@@ -58,7 +58,7 @@ function my_register_sidebars() {
 			'after_title' => '</h3>'
 		)
 	);
-	
+
 	register_sidebar(
 		array(
 			'id' => 'secondary',
@@ -80,24 +80,24 @@ add_action( 'widgets_init', 'my_register_sidebars' );
 function wp_nav_menu_select_sort( $a, $b ) {
     return $a = $b;
 }
- 
+
 function wp_nav_menu_select( $args = array() ) {
-     
+
     $defaults = array(
         'theme_location' => '',
         'menu_class' => 'select-menu',
     );
-     
+
     $args = wp_parse_args( $args, $defaults );
-      
+
     if ( ( $menu_locations = get_nav_menu_locations() ) && isset( $menu_locations[ $args['theme_location'] ] ) ) {
         $menu = wp_get_nav_menu_object( $menu_locations[ $args['theme_location'] ] );
-          
+
         $menu_items = wp_get_nav_menu_items( $menu->term_id );
-         
+
         $children = array();
         $parents = array();
-         
+
         foreach ( $menu_items as $id => $data ) {
             if ( empty( $data->menu_item_parent )  ) {
                 $top_level[$data->ID] = $data;
@@ -105,7 +105,7 @@ function wp_nav_menu_select( $args = array() ) {
                 $children[$data->menu_item_parent][$data->ID] = $data;
             }
         }
-         
+
         foreach ( $top_level as $id => $data ) {
             foreach ( $children as $parent => $items ) {
                 if ( $id == $parent  ) {
@@ -118,7 +118,7 @@ function wp_nav_menu_select( $args = array() ) {
                 }
             }
         }
-         
+
         foreach ( $top_level as $id => $data ) {
             if ( ! in_array( $id, $parents ) ) {
                 $menu_item[$id] = array(
@@ -127,9 +127,9 @@ function wp_nav_menu_select( $args = array() ) {
                 );
             }
         }
-         
-        uksort( $menu_item, 'wp_nav_menu_select_sort' ); 
-         
+
+        uksort( $menu_item, 'wp_nav_menu_select_sort' );
+
         ?>
             <select id="mobile-menu-<?php echo $args['theme_location'] ?>" class="<?php echo $args['menu_class'] ?>">
                 <option value=""><?php _e( 'Navigation' ); ?></option>

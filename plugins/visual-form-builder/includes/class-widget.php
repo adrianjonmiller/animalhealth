@@ -12,6 +12,30 @@ function vfb_register_widgets() {
  * @since 2.7
  */
 class VisualFormBuilder_Widget extends WP_Widget {
+	/**
+	 * field_table_name
+	 *
+	 * @var mixed
+	 * @access public
+	 */
+	public $field_table_name;
+
+	/**
+	 * form_table_name
+	 *
+	 * @var mixed
+	 * @access public
+	 */
+	public $form_table_name;
+
+	/**
+	 * entries_table_name
+	 *
+	 * @var mixed
+	 * @access public
+	 */
+	public $entries_table_name;
+
 	public function __construct(){
 		global $wpdb;
 
@@ -20,12 +44,14 @@ class VisualFormBuilder_Widget extends WP_Widget {
 		$this->form_table_name 		= $wpdb->prefix . 'visual_form_builder_forms';
 		$this->entries_table_name 	= $wpdb->prefix . 'visual_form_builder_entries';
 
-		$args = array(
-			'classname' 	=> 'vfb_widget_class',
-			'description' 	=> 'Visual Form Builder widget'
+		parent::__construct(
+			'vfb_widget',
+			__( 'Visual Form Builder', 'vfb-pro' ),
+			array(
+				'classname'   => 'vfb_widget_class',
+				'description' => __( 'Visual Form Builder Widget', 'visual-form-builder' ),
+			)
 		);
-
-		$this->WP_Widget( 'vfb_widget', 'Visual Form Builder', $args );
 	}
 
 	public function form( $instance ) {

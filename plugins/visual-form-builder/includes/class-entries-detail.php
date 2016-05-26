@@ -5,6 +5,30 @@
  * @since 1.4
  */
 class VisualFormBuilder_Entries_Detail{
+	/**
+	 * field_table_name
+	 *
+	 * @var mixed
+	 * @access public
+	 */
+	public $field_table_name;
+
+	/**
+	 * form_table_name
+	 *
+	 * @var mixed
+	 * @access public
+	 */
+	public $form_table_name;
+
+	/**
+	 * entries_table_name
+	 *
+	 * @var mixed
+	 * @access public
+	 */
+	public $entries_table_name;
+
 	public function __construct(){
 		global $wpdb;
 
@@ -19,11 +43,11 @@ class VisualFormBuilder_Entries_Detail{
 	public function entries_detail(){
 		global $wpdb;
 
-		$entry_id = absint( $_REQUEST['entry'] );
+		$entry_id = absint( $_GET['entry'] );
 
 		$entries = $wpdb->get_results( $wpdb->prepare( "SELECT forms.form_title, entries.* FROM $this->form_table_name AS forms INNER JOIN $this->entries_table_name AS entries ON entries.form_id = forms.form_id WHERE entries.entries_id  = %d", $entry_id ) );
 
-		echo '<p>' . sprintf( '<a href="?page=%s" class="view-entry">&laquo; Back to Entries</a>', $_REQUEST['page'] ) . '</p>';
+		echo '<p>' . sprintf( '<a href="?page=%s" class="view-entry">&laquo; Back to Entries</a>', $_GET['page'] ) . '</p>';
 
 		// Get the date/time format that is saved in the options table
 		$date_format = get_option('date_format');
@@ -71,7 +95,7 @@ class VisualFormBuilder_Entries_Detail{
 
 								<div id="major-publishing-actions">
 									<div id="delete-action">
-										<?php echo sprintf( '<a class="submitdelete deletion entry-delete" href="?page=%2$s&action=%3$s&entry=%4$d">%1$s</a>', __( 'Move to Trash', 'visual-form-builder' ), $_REQUEST['page'], 'trash', $entry_id ); ?>
+										<?php echo sprintf( '<a class="submitdelete deletion entry-delete" href="?page=%2$s&action=%3$s&entry=%4$d">%1$s</a>', __( 'Move to Trash', 'visual-form-builder' ), $_GET['page'], 'trash', $entry_id ); ?>
 									</div>
 									<div id="publishing-action">
 										<?php submit_button( __( 'Print', 'visual-form-builder' ), 'secondary', 'submit', false, array( 'onclick' => 'window.print();return false;' ) ); ?>
@@ -128,7 +152,7 @@ class VisualFormBuilder_Entries_Detail{
 							?>
 							<tr valign="top">
 								<th scope="row"><label for="field[<?php echo $obj->id; ?>]"><?php echo stripslashes( $obj->name ); ?></label></th>
-								<td style="background:#eee;border:1px solid #ddd"><a href="<?php esc_attr_e( $obj->value ); ?>" target="_blank"><?php echo stripslashes( esc_html( $obj->value ) ); ?></a></td>
+								<td style="background:#eee;border:1px solid #ddd"><a href="<?php esc_attr_e( $obj->value ); ?>" target="_blank"><?php echo esc_html( $obj->value ); ?></a></td>
 							</tr>
 	                    	<?php
 							break;
@@ -138,7 +162,7 @@ class VisualFormBuilder_Entries_Detail{
 							?>
 							<tr valign="top">
 								<th scope="row"><label for="field[<?php echo $obj->id; ?>]"><?php echo stripslashes( $obj->name ); ?></label></th>
-								<td style="background:#eee;border:1px solid #ddd"><?php echo wpautop( stripslashes( wp_specialchars_decode( esc_html( $obj->value ) ) ) ); ?></td>
+								<td style="background:#eee;border:1px solid #ddd"><?php echo wpautop( esc_html( $obj->value ) ); ?></td>
 							</tr>
 	                    	<?php
 							break;
@@ -147,7 +171,7 @@ class VisualFormBuilder_Entries_Detail{
 							?>
 							<tr valign="top">
 								<th scope="row"><label for="field[<?php echo $obj->id; ?>]"><?php echo stripslashes( $obj->name ); ?></label></th>
-								<td style="background:#eee;border:1px solid #ddd"><?php echo stripslashes( wp_specialchars_decode( esc_html( $obj->value ) ) ); ?></td>
+								<td style="background:#eee;border:1px solid #ddd"><?php echo esc_html( $obj->value ); ?></td>
 							</tr>
                         	<?php
 							break;
